@@ -1,7 +1,7 @@
 all: compile link
 
 compile:
-	g++ -Isrc/include -c Textures.cpp
+	g++ -Isrc/include -c text.cpp
 
 link:
-	g++ Textures.o -o Textures -Lsrc/lib -lsfml-graphics -lsfml-window -lsfml-system
+	g++ text.o -o text -Lsrc/lib -lsfml-graphics -lsfml-window -lsfml-system
