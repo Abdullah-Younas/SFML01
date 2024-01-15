@@ -26,7 +26,8 @@ void Hover(sf::Vector2i &mousePos, sf::RectangleShape &HoverShape, bool &shapeHo
 bool CheckWinner(sf::RectangleShape Cube1TX, sf::RectangleShape Cube2TX, sf::RectangleShape Cube3TX,
                  sf::RectangleShape Cube4TX, sf::RectangleShape Cube5TX, sf::RectangleShape Cube6TX,
                  sf::RectangleShape Cube7TX, sf::RectangleShape Cube8TX, sf::RectangleShape Cube9TX,
-                 sf::Texture &CurrentTX, sf::Texture &PlayerTx,sf::Texture &ComputerTx,bool &WinnerDecided) {
+                 sf::Texture &CurrentTX, sf::Texture &PlayerTx,sf::Texture &ComputerTx,bool &WinnerDecided,
+                 bool &PWinner,bool &CWinner, bool &INGAME, bool &INMENU, bool &INSETTINGS) {
     // Check for a winning condition and return true if found
     if ((Cube1TX.getTexture() == &CurrentTX && Cube2TX.getTexture() == &CurrentTX && Cube3TX.getTexture() == &CurrentTX) ||
         (Cube4TX.getTexture() == &CurrentTX && Cube5TX.getTexture() == &CurrentTX && Cube6TX.getTexture() == &CurrentTX) ||
@@ -40,9 +41,17 @@ bool CheckWinner(sf::RectangleShape Cube1TX, sf::RectangleShape Cube2TX, sf::Rec
         if (&CurrentTX == &PlayerTx) {
             std::cout << "Player wins!" << std::endl;
             WinnerDecided = true;
+            PWinner = true;
+            INGAME = false;
+            INMENU = false;
+            INSETTINGS = false;
         } else if (&CurrentTX == &ComputerTx) {
             std::cout << "Computer wins!" << std::endl;
             WinnerDecided = true;
+            CWinner = true;
+            INGAME = false;
+            INMENU = false;
+            INSETTINGS = false;
         }
 
         // You might want to handle the game state here, such as displaying a message or ending the game.
@@ -56,6 +65,9 @@ bool CheckWinner(sf::RectangleShape Cube1TX, sf::RectangleShape Cube2TX, sf::Rec
     if (allCubesFilled) {
         std::cout << "It's a tie!" << std::endl;
         WinnerDecided = true;
+        PWinner = false;
+        CWinner = false;
+        INGAME = false;
 
         // You might want to handle the game state here, such as displaying a message or ending the game.
         return true;
@@ -100,6 +112,9 @@ int main()
     settingBTN.setPosition(195.0f,300.0f);
     sf::RectangleShape exitBTN(sf::Vector2f(100.0f,30.0f));
     exitBTN.setPosition(240.0f,350.0f);
+    sf::RectangleShape WinnerDecidedWhiteBG(sf::Vector2f(400.0f,400.0f));
+    WinnerDecidedWhiteBG.setPosition(100.0f,100.0f);
+    WinnerDecidedWhiteBG.setFillColor(sf::Color{ 255, 255, 255, 127 });
     bool PlayerTurn = true;
     bool ComputerTurn = false;
     bool exitbtnhover = false;
@@ -127,6 +142,12 @@ int main()
     bool Cube9hover = false;
     bool Cube9Clicked = false;
     bool WinnerDecided = false;
+    bool PlayerWinner = false;
+    bool ComputerWinner = false;
+    bool isPlayerWinner = false;
+    bool isComputerWinner = false;
+    bool isTIEWinner = false;
+    double WinnerTime = 0.0001f;
 
 
     sf::Texture texture;//creating a texture var
@@ -148,21 +169,29 @@ int main()
     sf::Text playbtntxt;
     sf::Text settingbtntxt;
     sf::Text exitbtntxt;
+    sf::Text CWinnerText;
+    sf::Text PWinnerText;
+    sf::Text TieText;
     TextDef(title,font,100.0f,50.0f,"TicTacToe",50,true);
     TextDef(playbtntxt,font,246.0f,250.0f,"PLAY",25,false);
     TextDef(settingbtntxt,font,204.0f,300.0f,"SETTINGS",25,false);
     TextDef(exitbtntxt,font,246.0f,350.0f,"EXIT",25,false);
+    TextDef(PWinnerText,font,125.0f,300.0f,"Player Wins the Game",20,false);
+    TextDef(CWinnerText,font,115.0f,300.0f,"Computer Wins the Game",20,false);
+    TextDef(TieText,font,200.0f,300.0f,"GAME IS TIE!",20,false);
+    
+
 
     float scrollSpeed = 0.01f; // Adjust scrolling speed as needed
 
     while (window.isOpen())
-    {
+    {   
         sf::Event event;
         while (window.pollEvent(event))
         {
             if (event.type == sf::Event::Closed)
                 window.close();
-            if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left)
+            if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left && WinnerDecided == false)
             {   
                 if(exitbtnhover == true){
                     if (inMenu == true)
@@ -189,88 +218,92 @@ int main()
                         inMenu = false;
                     }
                     
-                }else if (Cube1hover == true && PlayerTurn == true && Cube1Clicked == false && WinnerDecided == false && ComputerTurn == false)
-                {
-                    std::cout << "Cube1" << '\n';
-                    std::cout << "ComputerTurn" << '\n';
-                    Cube1.setTexture(&XTexture);
-                    ComputerTurn = true;
-                    PlayerTurn = false;
-                    Cube1Clicked = true;
-                    CheckWinner(Cube1,Cube2,Cube3,Cube4,Cube5,Cube6,Cube7,Cube8,Cube9,XTexture,XTexture,OTexture,WinnerDecided);
-                }else if (Cube2hover == true && PlayerTurn == true && Cube2Clicked == false && WinnerDecided == false && ComputerTurn == false)
-                {
-                    std::cout << "Cube2" << '\n';
-                    std::cout << "ComputerTurn" << '\n';
-                    Cube2.setTexture(&XTexture);
-                    PlayerTurn = false;
-                    Cube2Clicked = true;
-                    CheckWinner(Cube1,Cube2,Cube3,Cube4,Cube5,Cube6,Cube7,Cube8,Cube9,XTexture,XTexture,OTexture,WinnerDecided);
-                    ComputerTurn = true;
-                }else if (Cube3hover == true && PlayerTurn == true && Cube3Clicked == false && WinnerDecided == false && ComputerTurn == false)
-                {
-                    std::cout << "Cube3" << '\n';
-                    std::cout << "ComputerTurn" << '\n';
-                    Cube3.setTexture(&XTexture);
-                    PlayerTurn = false;
-                    Cube3Clicked = true;
-                    CheckWinner(Cube1,Cube2,Cube3,Cube4,Cube5,Cube6,Cube7,Cube8,Cube9,XTexture,XTexture,OTexture,WinnerDecided);
-                    ComputerTurn = true;
-                }else if (Cube4hover == true && PlayerTurn == true && Cube4Clicked == false && WinnerDecided == false && ComputerTurn == false)
-                {
-                    std::cout << "Cube4" << '\n';
-                    std::cout << "ComputerTurn" << '\n';
-                    Cube4.setTexture(&XTexture);
-                    PlayerTurn = false;
-                    Cube4Clicked = true;
-                    CheckWinner(Cube1,Cube2,Cube3,Cube4,Cube5,Cube6,Cube7,Cube8,Cube9,XTexture,XTexture,OTexture,WinnerDecided);
-                    ComputerTurn = true;
-                }else if (Cube5hover == true && PlayerTurn == true && Cube5Clicked == false && WinnerDecided == false && ComputerTurn == false)
-                {
-                    std::cout << "Cube5" << '\n';
-                    std::cout << "ComputerTurn" << '\n';
-                    Cube5.setTexture(&XTexture);
-                    PlayerTurn = false;
-                    Cube5Clicked = true;
-                    CheckWinner(Cube1,Cube2,Cube3,Cube4,Cube5,Cube6,Cube7,Cube8,Cube9,XTexture,XTexture,OTexture,WinnerDecided);
-                    ComputerTurn = true;
-                }else if (Cube6hover == true && PlayerTurn == true && Cube6Clicked == false && WinnerDecided == false && ComputerTurn == false)
-                {
-                    std::cout << "Cube6" << '\n';
-                    std::cout << "ComputerTurn" << '\n';
-                    Cube6.setTexture(&XTexture);
-                    PlayerTurn = false;
-                    Cube6Clicked = true;
-                    CheckWinner(Cube1,Cube2,Cube3,Cube4,Cube5,Cube6,Cube7,Cube8,Cube9,XTexture,XTexture,OTexture,WinnerDecided);
-                    ComputerTurn = true;
-                }else if (Cube7hover == true && PlayerTurn == true && Cube7Clicked == false && WinnerDecided == false && ComputerTurn == false)
-                {
-                    std::cout << "Cube7" << '\n';
-                    std::cout << "ComputerTurn" << '\n';
-                    Cube7.setTexture(&XTexture);
-                    PlayerTurn = false;
-                    Cube7Clicked = true;
-                    CheckWinner(Cube1,Cube2,Cube3,Cube4,Cube5,Cube6,Cube7,Cube8,Cube9,XTexture,XTexture,OTexture,WinnerDecided);
-                    ComputerTurn = true;
-                }else if (Cube8hover == true && PlayerTurn == true && Cube8Clicked == false && WinnerDecided == false && ComputerTurn == false)
-                {
-                    std::cout << "Cube8" << '\n';
-                    std::cout << "ComputerTurn" << '\n';
-                    Cube8.setTexture(&XTexture);
-                    PlayerTurn = false;
-                    Cube8Clicked = true;
-                    CheckWinner(Cube1,Cube2,Cube3,Cube4,Cube5,Cube6,Cube7,Cube8,Cube9,XTexture,XTexture,OTexture,WinnerDecided);
-                    ComputerTurn = true;
-                }else if (Cube9hover == true && PlayerTurn == true && Cube9Clicked == false && WinnerDecided == false && ComputerTurn == false)
-                {
-                    std::cout << "Cube9" << '\n';
-                    std::cout << "ComputerTurn" << '\n';
-                    Cube9.setTexture(&XTexture);
-                    PlayerTurn = false;
-                    Cube9Clicked = true;
-                    CheckWinner(Cube1,Cube2,Cube3,Cube4,Cube5,Cube6,Cube7,Cube8,Cube9,XTexture,XTexture,OTexture,WinnerDecided);
-                    ComputerTurn = true;
-                }               
+                }
+                else if(inGame == true){
+                    if (Cube1hover == true && PlayerTurn == true && Cube1Clicked == false && WinnerDecided == false && ComputerTurn == false)
+                    {
+                        std::cout << "Cube1" << '\n';
+                        std::cout << "ComputerTurn" << '\n';
+                        Cube1.setTexture(&XTexture);
+                        ComputerTurn = true;
+                        PlayerTurn = false;
+                        Cube1Clicked = true;
+                        CheckWinner(Cube1,Cube2,Cube3,Cube4,Cube5,Cube6,Cube7,Cube8,Cube9,XTexture,XTexture,OTexture,WinnerDecided,PlayerWinner,ComputerWinner,inGame,inMenu,inSettings);
+                    }else if (Cube2hover == true && PlayerTurn == true && Cube2Clicked == false && WinnerDecided == false && ComputerTurn == false)
+                    {
+                        std::cout << "Cube2" << '\n';
+                        std::cout << "ComputerTurn" << '\n';
+                        Cube2.setTexture(&XTexture);
+                        PlayerTurn = false;
+                        Cube2Clicked = true;
+                        CheckWinner(Cube1,Cube2,Cube3,Cube4,Cube5,Cube6,Cube7,Cube8,Cube9,XTexture,XTexture,OTexture,WinnerDecided,PlayerWinner,ComputerWinner,inGame,inMenu,inSettings);
+                        ComputerTurn = true;
+                    }else if (Cube3hover == true && PlayerTurn == true && Cube3Clicked == false && WinnerDecided == false && ComputerTurn == false)
+                    {
+                        std::cout << "Cube3" << '\n';
+                        std::cout << "ComputerTurn" << '\n';
+                        Cube3.setTexture(&XTexture);
+                        PlayerTurn = false;
+                        Cube3Clicked = true;
+                        CheckWinner(Cube1,Cube2,Cube3,Cube4,Cube5,Cube6,Cube7,Cube8,Cube9,XTexture,XTexture,OTexture,WinnerDecided,PlayerWinner,ComputerWinner,inGame,inMenu,inSettings);
+                        ComputerTurn = true;
+                    }else if (Cube4hover == true && PlayerTurn == true && Cube4Clicked == false && WinnerDecided == false && ComputerTurn == false)
+                    {
+                        std::cout << "Cube4" << '\n';
+                        std::cout << "ComputerTurn" << '\n';
+                        Cube4.setTexture(&XTexture);
+                        PlayerTurn = false;
+                        Cube4Clicked = true;
+                        CheckWinner(Cube1,Cube2,Cube3,Cube4,Cube5,Cube6,Cube7,Cube8,Cube9,XTexture,XTexture,OTexture,WinnerDecided,PlayerWinner,ComputerWinner,inGame,inMenu,inSettings);
+                        ComputerTurn = true;
+                    }else if (Cube5hover == true && PlayerTurn == true && Cube5Clicked == false && WinnerDecided == false && ComputerTurn == false)
+                    {
+                        std::cout << "Cube5" << '\n';
+                        std::cout << "ComputerTurn" << '\n';
+                        Cube5.setTexture(&XTexture);
+                        PlayerTurn = false;
+                        Cube5Clicked = true;
+                        CheckWinner(Cube1,Cube2,Cube3,Cube4,Cube5,Cube6,Cube7,Cube8,Cube9,XTexture,XTexture,OTexture,WinnerDecided,PlayerWinner,ComputerWinner,inGame,inMenu,inSettings);
+                        ComputerTurn = true;
+                    }else if (Cube6hover == true && PlayerTurn == true && Cube6Clicked == false && WinnerDecided == false && ComputerTurn == false)
+                    {
+                        std::cout << "Cube6" << '\n';
+                        std::cout << "ComputerTurn" << '\n';
+                        Cube6.setTexture(&XTexture);
+                        PlayerTurn = false;
+                        Cube6Clicked = true;
+                        CheckWinner(Cube1,Cube2,Cube3,Cube4,Cube5,Cube6,Cube7,Cube8,Cube9,XTexture,XTexture,OTexture,WinnerDecided,PlayerWinner,ComputerWinner,inGame,inMenu,inSettings);
+                        ComputerTurn = true;
+                    }else if (Cube7hover == true && PlayerTurn == true && Cube7Clicked == false && WinnerDecided == false && ComputerTurn == false)
+                    {
+                        std::cout << "Cube7" << '\n';
+                        std::cout << "ComputerTurn" << '\n';
+                        Cube7.setTexture(&XTexture);
+                        PlayerTurn = false;
+                        Cube7Clicked = true;
+                        CheckWinner(Cube1,Cube2,Cube3,Cube4,Cube5,Cube6,Cube7,Cube8,Cube9,XTexture,XTexture,OTexture,WinnerDecided,PlayerWinner,ComputerWinner,inGame,inMenu,inSettings);
+                        ComputerTurn = true;
+                    }else if (Cube8hover == true && PlayerTurn == true && Cube8Clicked == false && WinnerDecided == false && ComputerTurn == false)
+                    {
+                        std::cout << "Cube8" << '\n';
+                        std::cout << "ComputerTurn" << '\n';
+                        Cube8.setTexture(&XTexture);
+                        PlayerTurn = false;
+                        Cube8Clicked = true;
+                        CheckWinner(Cube1,Cube2,Cube3,Cube4,Cube5,Cube6,Cube7,Cube8,Cube9,XTexture,XTexture,OTexture,WinnerDecided,PlayerWinner,ComputerWinner,inGame,inMenu,inSettings);
+                        ComputerTurn = true;
+                    }else if (Cube9hover == true && PlayerTurn == true && Cube9Clicked == false && WinnerDecided == false && ComputerTurn == false)
+                    {
+                        std::cout << "Cube9" << '\n';
+                        std::cout << "ComputerTurn" << '\n';
+                        Cube9.setTexture(&XTexture);
+                        PlayerTurn = false;
+                        Cube9Clicked = true;
+                        CheckWinner(Cube1,Cube2,Cube3,Cube4,Cube5,Cube6,Cube7,Cube8,Cube9,XTexture,XTexture,OTexture,WinnerDecided,PlayerWinner,ComputerWinner,inGame,inMenu,inSettings);
+                        ComputerTurn = true;
+                    }               
+                }
+
                 else{
                     std::cout << "sry cant go now\n";
                 }
@@ -285,7 +318,7 @@ int main()
                                 Cube1.setTexture(&OTexture);
                                 PlayerTurn = true;
                                 ComputerTurn = false;
-                                CheckWinner(Cube1,Cube2,Cube3,Cube4,Cube5,Cube6,Cube7,Cube8,Cube9,OTexture,XTexture,OTexture,WinnerDecided);
+                                CheckWinner(Cube1,Cube2,Cube3,Cube4,Cube5,Cube6,Cube7,Cube8,Cube9,OTexture,XTexture,OTexture,WinnerDecided,PlayerWinner,ComputerWinner,inGame,inMenu,inSettings);
                                 Cube1Clicked = true;
                                 std::cout << "CUBE1COMPUTER" << '\n';
                                 std::cout << "playerTurn" << '\n';
@@ -297,7 +330,7 @@ int main()
                                 Cube2.setTexture(&OTexture);
                                 PlayerTurn = true;
                                 Cube2Clicked = true;
-                                CheckWinner(Cube1,Cube2,Cube3,Cube4,Cube5,Cube6,Cube7,Cube8,Cube9,OTexture,XTexture,OTexture,WinnerDecided);
+                                CheckWinner(Cube1,Cube2,Cube3,Cube4,Cube5,Cube6,Cube7,Cube8,Cube9,OTexture,XTexture,OTexture,WinnerDecided,PlayerWinner,ComputerWinner,inGame,inMenu,inSettings);
                                 ComputerTurn = false;
                                 std::cout << "CUBE2COMPUTER" << '\n';
                                 std::cout << "playerTurn" << '\n';
@@ -308,7 +341,7 @@ int main()
                                 Cube3.setTexture(&OTexture);
                                 PlayerTurn = true;
                                 Cube3Clicked = true;
-                                CheckWinner(Cube1,Cube2,Cube3,Cube4,Cube5,Cube6,Cube7,Cube8,Cube9,OTexture,XTexture,OTexture,WinnerDecided);
+                                CheckWinner(Cube1,Cube2,Cube3,Cube4,Cube5,Cube6,Cube7,Cube8,Cube9,OTexture,XTexture,OTexture,WinnerDecided,PlayerWinner,ComputerWinner,inGame,inMenu,inSettings);
                                 ComputerTurn = false;
                                 std::cout << "CUBE3COMPUTER" << '\n';
                                 std::cout << "playerTurn" << '\n';
@@ -319,7 +352,7 @@ int main()
                                 Cube4.setTexture(&OTexture);
                                 PlayerTurn = true;
                                 Cube4Clicked = true;
-                                CheckWinner(Cube1,Cube2,Cube3,Cube4,Cube5,Cube6,Cube7,Cube8,Cube9,OTexture,XTexture,OTexture,WinnerDecided);
+                                CheckWinner(Cube1,Cube2,Cube3,Cube4,Cube5,Cube6,Cube7,Cube8,Cube9,OTexture,XTexture,OTexture,WinnerDecided,PlayerWinner,ComputerWinner,inGame,inMenu,inSettings);
                                 ComputerTurn = false;
                                 std::cout << "CUBE4COMPUTER" << '\n';
                                 std::cout << "playerTurn" << '\n';
@@ -330,7 +363,7 @@ int main()
                                 Cube5.setTexture(&OTexture);
                                 PlayerTurn = true;
                                 Cube5Clicked = true;
-                                CheckWinner(Cube1,Cube2,Cube3,Cube4,Cube5,Cube6,Cube7,Cube8,Cube9,OTexture,XTexture,OTexture,WinnerDecided);
+                                CheckWinner(Cube1,Cube2,Cube3,Cube4,Cube5,Cube6,Cube7,Cube8,Cube9,OTexture,XTexture,OTexture,WinnerDecided,PlayerWinner,ComputerWinner,inGame,inMenu,inSettings);
                                 ComputerTurn = false;
                                 std::cout << "CUBE5COMPUTER" << '\n';
                                 std::cout << "playerTurn" << '\n';
@@ -341,7 +374,7 @@ int main()
                                 Cube6.setTexture(&OTexture);
                                 PlayerTurn = true;
                                 Cube6Clicked = true;
-                                CheckWinner(Cube1,Cube2,Cube3,Cube4,Cube5,Cube6,Cube7,Cube8,Cube9,OTexture,XTexture,OTexture,WinnerDecided);
+                                CheckWinner(Cube1,Cube2,Cube3,Cube4,Cube5,Cube6,Cube7,Cube8,Cube9,OTexture,XTexture,OTexture,WinnerDecided,PlayerWinner,ComputerWinner,inGame,inMenu,inSettings);
                                 ComputerTurn = false;
                                 std::cout << "CUBE6COMPUTER" << '\n';
                                 std::cout << "playerTurn" << '\n';
@@ -352,7 +385,7 @@ int main()
                                 Cube7.setTexture(&OTexture);
                                 PlayerTurn = true;
                                 Cube7Clicked = true;
-                                CheckWinner(Cube1,Cube2,Cube3,Cube4,Cube5,Cube6,Cube7,Cube8,Cube9,OTexture,XTexture,OTexture,WinnerDecided);
+                                CheckWinner(Cube1,Cube2,Cube3,Cube4,Cube5,Cube6,Cube7,Cube8,Cube9,OTexture,XTexture,OTexture,WinnerDecided,PlayerWinner,ComputerWinner,inGame,inMenu,inSettings);
                                 ComputerTurn = false;
                                 std::cout << "CUBE7COMPUTER" << '\n';
                                 std::cout << "playerTurn" << '\n';
@@ -363,7 +396,7 @@ int main()
                                 Cube8.setTexture(&OTexture);
                                 PlayerTurn = true;
                                 Cube8Clicked = true;
-                                CheckWinner(Cube1,Cube2,Cube3,Cube4,Cube5,Cube6,Cube7,Cube8,Cube9,OTexture,XTexture,OTexture,WinnerDecided);
+                                CheckWinner(Cube1,Cube2,Cube3,Cube4,Cube5,Cube6,Cube7,Cube8,Cube9,OTexture,XTexture,OTexture,WinnerDecided,PlayerWinner,ComputerWinner,inGame,inMenu,inSettings);
                                 ComputerTurn = false;
                                 std::cout << "CUBE8COMPUTER" << '\n';
                                 std::cout << "playerTurn" << '\n';
@@ -374,7 +407,7 @@ int main()
                                 Cube9.setTexture(&OTexture);
                                 PlayerTurn = true;
                                 Cube9Clicked = true;
-                                CheckWinner(Cube1,Cube2,Cube3,Cube4,Cube5,Cube6,Cube7,Cube8,Cube9,OTexture,XTexture,OTexture,WinnerDecided);
+                                CheckWinner(Cube1,Cube2,Cube3,Cube4,Cube5,Cube6,Cube7,Cube8,Cube9,OTexture,XTexture,OTexture,WinnerDecided,PlayerWinner,ComputerWinner,inGame,inMenu,inSettings);
                                 ComputerTurn = false;
                                 std::cout << "CUBE9COMPUTER" << '\n';
                                 std::cout << "playerTurn" << '\n';
@@ -449,8 +482,12 @@ int main()
             window.draw(playbtntxt);
             window.draw(settingbtntxt);
             window.draw(exitbtntxt);  
+            inGame = false;
+            inSettings = false;
         }else if (inGame == true)
-        {
+        {   
+            inMenu = false;
+            inSettings = false;
             window.draw(Cube1);
             window.draw(Cube2);
             window.draw(Cube3);
@@ -464,6 +501,32 @@ int main()
         }else if (inSettings == true)
         {
             window.draw(settingBTN);
+            inGame = false;
+            inSettings = true;
+        }
+        if (WinnerDecided) {
+            WinnerTime = WinnerTime + 0.00001;
+            if(WinnerTime >= 0.01){
+                if (PlayerWinner) {
+                    isPlayerWinner = true;
+                } else if (ComputerWinner) {
+                    isComputerWinner = true;
+                } else {
+                    isTIEWinner = true;
+                }
+            }
+        }
+        if (isPlayerWinner == true)
+        {   
+            window.draw(WinnerDecidedWhiteBG);
+            window.draw(PWinnerText);
+        }else if (isComputerWinner == true)
+        {
+            window.draw(WinnerDecidedWhiteBG);
+            window.draw(CWinnerText);
+        }else if(isTIEWinner == true){
+            window.draw(WinnerDecidedWhiteBG);
+            window.draw(TieText);
         }
         
         
